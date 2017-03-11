@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Gallery</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+
+    <link href="css/ionic.css" rel="stylesheet">
+
+    <script src="js/geoLocation.js"></script>
+    <script src="js/deviceInfo.js"></script>
+    <script src="js/httpReqests.js"></script>
+    <script src="js/views.js"></script>
+    <script src="js/rating.js"></script>
+    <script src="js/comments.js"></script>
+    <script src="js/cameraPost.js"></script>
+    <script src="js/videoPost.js"></script>
+    <script src="js/index.js"></script>
+    <script src="js/ionic.bundle.js"></script>
+    <script src="js/angular-resource.js"></script>
+    <script src="scripts/ng-cordova-master/dist/ng-cordova.min.js"></script>
+    <!-- Needed for Cordova/PhoneGap (will be a 404 during development) -->
+    <script src="cordova.js"></script>
+</head>
+
+
+
+<body ng-app="gallery" ng-controller="GalleryCtrl as gal">
+       
+    <header style="float:left;">
+        <img src="img/banner.png" />
+    </header>
+
+    <div style="margin:2px; position:relative; bottom:14px;">
+        <button class="button button-full" ng-click="getLocationID()" style="float:left; width:50%; background-color:#9CC667; color:white; border-right-style: solid; border-right-width:2px; border-right-color:white;">Recent</button>
+        <button class="button button-full" ng-click="getTop()" style="float:right; width:50%; background-color:#9CC667; color:white ">Top Posts</button>
+    </div>
+
+
+    <div>
+        <ion-content class="has-header" style="margin-top:75px; margin-left: 10px;" on-swipe-right="swiped()" on-swipe-left="captureVideo()">
+            <ion-item collection-repeat="image in gal.images"
+                 item-height="200px">
+                 <!--ng-src="{{image.src}}"
+                 ng-click="openModal($index)"-->                
+                <img ng-src="{{image.src}}"  ng-click="openModal($index)" style="max-width:60%; max-height:90%; float:left;"/>
+                <div style="float:right; max-width:25%; max-height:90%">
+                    <div style="float:right">
+                        <div style="float:right; position:relative; top:40px; color:#9CC667; font-size:xx-large; margin-right:5px">{{image.rating}}</div>                       
+                        <div>
+                            <img src="images/up arrow.png" ng-click="likeAction(image)" style="display:block; float:left; height:50px; width:50px;" />
+                            <img src="images/down arrow.png" ng-click="dislikeAction(image)" style="display:block; float:left; height:50px; width:50px;" />
+                        </div>
+                    </div>
+                    <div style="float:right">
+                        <div style="float:right; position:relative; top:20px; color:#9CC667; font-size:xx-large; margin-right:5px">
+                             {{image.numComments}}
+                        </div>
+                        <img src="images/comment icon.png" ng-click="openModal($index)" style="float:left; height:50px; width:50px; position:relative; right:15px;" />                       
+                    </div>
+                <img src="images/elipses.png" style="float:right; height:40px; width:60px;" />
+                </div>
+            </ion-item> 
+
+            <!--<button class="button" ng-click="getLocation()">Get Pos</button>
+            <button class="button" ng-click="openModal()">Show Modal</button>
+            <button class="button" ng-click="httpPost()">HTTP POST</button>
+            <button class="button" ng-click="httpGet()">HTTP GET</button>
+            <button class="button" ng-click="getUUID()">Get UUID</button>
+            <button class="button" ng-click="addImage()">addimage</button>-->
+
+            <script id="my-modal.html" type="text/ng-template">
+                <ion-modal-view>
+                        <div style="position:absolute; z-index:110;">
+                            <button class="button button-balanced" ng-click="hideModal()">Back</button>
+                        </div>
+                        <div style="position:absolute; z-index:100;">
+                            <img src="images/banner.png" style="max-width:100%" />
+                        </div>
+                    <ion-content style="margin-top:55px;">
+                        <!--<ion-nav-bar>
+                            <ion-nav-back-button class="button-clear">
+                                <i class="ion-arrow-left-c">Back</i>
+                            </ion-nav-back-button>
+                        </ion-nav-bar>-->
+                       
+                        <!--slide box deprecated next release. Keep an eye on this piece of code-->
+                        <ion-slide-box on-slide-changed="slideHasChanged($index)" active-slide=activeSlide show-pager="false">
+                            <ion-slide ng-repeat="image in gal.images track by $index">
+                                <div class="modalImage" style="margin-top:4px; margin-left:14px">
+                                    <img ng-src="{{image.src}}" class="center" />
+                                </div>
+                                <!--<video ng-src="{{image.src}}" class="center" controls="controls" autoplay></video>-->
+                                <div style="display:inline-block; padding-top:25px; font-size:x-large; color:#66cc00; margin-top:4px; margin-left:30px; ">
+                                    Rating: {{image.rating}}
+                                </div>
+                                <button class="button button-assertive" ng-click="dislikeAction(image)" style="float:right; margin-top:15px; margin-bottom:10px; margin-left:2px; margin-right:4px; display:inline-block;">Dislike</button>
+                                <button class="button button-balanced" ng-click="likeAction(image)" style="float:right; margin-top:15px; margin-bottom:10px; padding-right:20px; padding-left:20px; display:inline-block;">Like</button>
+
+
+                                <div style="position: relative; clear:both;">
+                                    <ion-list>
+                                        <ion-item class="item item-text-wrap" ng-repeat="comment in image.comments track by $index">
+                                            {{comment}}
+                                        </ion-item>
+                                    </ion-list>
+                                </div>
+
+
+                                <label class="item item-text-wrap">
+                                    <span class="input-label">Make a comment</span>
+                                    <input type="text" ng-model="newComment.text" />
+                                </label>
+                                <button type="button" class="button button-block button-positive" ng-click="postComment(image)">Submit Comment</button>
+
+                            </ion-slide>
+                        </ion-slide-box>
+                    </ion-content>
+                </ion-modal-view>
+            </script>
+        </ion-content>
+    </div>
+
+    <div ng-controller="DeviceCtrl as device">
+        
+    </div>
+</body>
+</html>
