@@ -1,0 +1,9 @@
+  config /etc/postgresql/9.4/main
+  data   /var/lib/postgresql/9.4/main
+  locale C
+  port   5433
+  
+  /home/ubuntu/.nvm/versions/node/v4.7.3/bin/cordova -> /home/ubuntu/.nvm/versions/node/v4.7.3/lib/node_modules/cordova/bin/cordova
+  
+  /home/ubuntu/.nvm/versions/node/v4.7.3/bin/ionic -> /home/ubuntu/.nvm/versions/node/v4.7.3/lib/node_modules/ionic/bin/ionic
+  

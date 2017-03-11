@@ -1,0 +1,11 @@
+Here is a list of currently installed packages in our Node project:
+express
+app
+bodyParser
+expressValidator
+multer
+path
+pg
+uniqID
+geo
+compression
